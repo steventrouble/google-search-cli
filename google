@@ -1,15 +1,22 @@
 #!/bin/bash
 
-q=""
-i=0
-for var in "$@"
-do
-	if [ "$i" -eq "0" ]; then
-		q+=$var
-	else
-		q+="+"$var
-	fi
-	i+=1
-done
+# Ensure all necessary programs are installed
+CURL=`which curl`
+HTML2TEXT=`which html2text`
+LESS=`which less`
 
-curl -A Mozilla http://www.google.com/search?q=$q | html2text -width 80 | more
+if [ -z "$CURL" ];
+then echo "Error: curl must be installed to run this program." 1&>2; fi
+
+if [ -z "$HTML2TEXT" ];
+then echo "Error: html2text must be installed to run this program." 1&>2; fi
+
+if [ -z "$LESS" ];
+then echo "Error: less must be installed to run this program." 1&>2; fi
+
+# Quietly search for all args (except the program name) 
+# Pipe it to html2text (assuming it's installed) at a the terminal's width
+# And then look at it proper
+curl -sA Mozilla "http://www.google.com/search?q=${@:1}" | \
+html2text -width $(tput cols) | \
+less
